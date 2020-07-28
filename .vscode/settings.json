@@ -1,5 +1,16 @@
 {
     "files.associations": {
-        "functional": "cpp"
-    }
+        "functional": "cpp",
+        "typeinfo": "cpp",
+        "*.tcc": "cpp",
+        "numeric": "cpp",
+        "fstream": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "system_error": "cpp",
+        "typeindex": "cpp",
+        "*.ipp": "cpp"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

@@ -25,6 +25,9 @@ if (Boost_FOUND)
    add_definitions( "-DHAS_BOOST" )
 endif()
 
+include_directories(/usr/include/gstreamer-1.0 /usr/include/glib-2.0 /usr/lib64/glib-2.0/include)   
+link_libraries(gstsdp-1.0 glib-2.0)
+
 include(CTest)
 enable_testing()
 
@@ -37,6 +40,7 @@ add_executable(myms
     TcpInterface.cpp
 )
 
+add_executable(testcode test.cpp)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
