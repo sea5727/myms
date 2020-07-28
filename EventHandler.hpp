@@ -2,6 +2,7 @@
 #define __EVENT_HANDLER_HPP__
 
 #include "Singleton.hpp"
+#include <array>
 #include <typeinfo>
 class message_base_t {};
 enum message_code{
@@ -25,17 +26,24 @@ class message_2_t : public message_t<message_2> {};
 class message_3_t : public message_t<message_3> {};
 
 
+typedef void (*base_handler_t)(const message_base_t&);
 
-class EventHandler : private Singleton<EventHandler>
+template<typename T>
+using base_handler_t_2_2 = void (*)(T *t, const message_base_t &);
+
+typedef void (*base_handler_t_2)(const message_base_t&);
+// typedef std::map<message_code, base_handler_t> handler_table_t;
+typedef std::array<base_handler_t, message_count> handler_table_t;
+
+class EventHandler : public Singleton<EventHandler>
 {
 public:
-    typedef void (*base_handler_t)(const message_base_t&);
-    // typedef std::map<message_code, base_handler_t> handler_table_t;
-    typedef std::array<base_handler_t, message_count> handler_table_t;
 
     static handler_table_t _handler_table_t;
 
-    static void empty_handler(const message_base_t &) {}
+    static void empty_handler(const message_base_t &) {
+        std::cout << "this is empty!" << std::endl;
+    }
     static void handler_init_t (int max_count)
     {
         for(int i = 0 ; i < max_count ; ++i)
@@ -48,14 +56,22 @@ public:
     {
         _handler_table_t[index] = handler;
     }
-    static void handler_message_struct2(const message_2_t & msg)
-    {
-        
-    }
 };
+
+handler_table_t EventHandler::_handler_table_t;
 
 
 //어딘가에서
+
+// static void handler_message_struct_2(const message_struct_2 & msg); // 실행 함수
+// static void _base_message_struct_2_handler(const message_base_t& msg) { // 핸들러 ( 실행함수를 실행시킨다. )
+//     handler_message_struct_2(static_cast<const message_struct_2&>(msg));
+// }
+// static handler_register_t _register_message_struct_2 (message_struct_2::enum_value, _base_message_struct_2_handler); // index와 함수를 등록
+// static void handler_message_struct_2(const message_struct_2 & msg) // 실행 함수                                     의 정의
+// {
+//     std::cout << typeid(msg).name() << std::endl;
+// }
 
 
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(myms VERSION 0.1.0)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Boost 1.73 REQUIRED COMPONENTS program_options system thread )
@@ -26,13 +26,14 @@ if (Boost_FOUND)
 endif()
 
 include_directories(/usr/include/gstreamer-1.0 /usr/include/glib-2.0 /usr/lib64/glib-2.0/include)   
-link_libraries(gstsdp-1.0 glib-2.0)
+link_libraries(gstsdp-1.0 glib-2.0 gstreamer-1.0 gobject-2.0)
 
 include(CTest)
 enable_testing()
 
 include_directories(/usr/local/include)
 link_directories(/usr/local/lib)
+
 link_libraries(${Boost_LIBRARIES})
 add_executable(myms 
     main.cpp
@@ -41,6 +42,9 @@ add_executable(myms
 )
 
 add_executable(testcode test.cpp)
+
+add_executable(event test_event.cpp)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
