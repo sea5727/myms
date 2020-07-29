@@ -1,6 +1,8 @@
 #ifndef __WEB_SOCKET_SERVER_HPP
 #define __WEB_SOCKET_SERVER_HPP
 
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include <rapidjson/document.h>
 
 #include <gst/gst.h>
@@ -55,7 +57,7 @@ public:
     }
     void on_message(websocketpp::connection_hdl hdl, message_ptr msg)
     {
-        std::cout << "on_message called with hdl: " << hdl.lock().get()
+        std::cout << "on_message called with hdl: " << hdl.lock().get() << " opcode : " << msg->get_opcode() 
                 << " and message: " << msg->get_payload()
                 << std::endl;
         
@@ -89,11 +91,11 @@ public:
             gst_sdp_message_new(&message);
             gst_sdp_message_parse_buffer((guint8 *)document["sdp"].GetString(), length, message);
 
-            int i = 0;
-            while(1)
+            
+            guint len = gst_sdp_message_medias_len(message);
+            for(int i = 0 ; i < len ; i++)
             {
                 const GstSDPMedia *media = gst_sdp_message_get_media(message, i);
-                if(media == NULL || media->media == NULL) break;
                 g_print("media : %s %s %s %d %d (%s %d)\n", 
                     media->media,
                     media->proto,
@@ -101,24 +103,64 @@ public:
                     media->num_ports,
                     media->port,
                     __func__, __LINE__);
-                guint len = gst_sdp_media_attributes_len(media);
-                g_print("sdp attributes len : %d\n", len);
-                // int j = 0;
-                // while(1)
-                // {
-                //     const GstSDPAttribute * attr = gst_sdp_media_get_attribute(media, j);
-                //     if(attr == NULL || attr->key == NULL || attr->value == NULL) break;
-                //     g_print("sdp attr key:%s, value:%s\n", attr->key, attr->value);
+                guint media_len = gst_sdp_media_formats_len(media);
+                for(int j = 0 ; j < media_len ; j++)
+                {
+                    const gchar* media_format = gst_sdp_media_get_format(media, j);
+                    g_print("[%d] media format : %s\n", j, media_format);
+                    GstCaps * media_caps = gst_sdp_media_get_caps_from_media(media, atoi(media_format));
+                    g_print("caps : %s\n", gst_caps_to_string(media_caps));
+                    guint media_caps_len = gst_caps_get_size(media_caps);
+                    g_print("gst_caps_get_size : %d\n", media_caps_len);
+                    for(int k = 0 ; k < media_caps_len ; k++)
+                    {
+                        GstStructure *media_caps_structure = gst_caps_get_structure(media_caps, k);
+                        // g_print("%s\n", gst_structure_to_string(media_caps_structure));
+                        // gst_structure_get_string(media_caps_structure)
+                    }
+                    
 
-                //     j++;
-                // }
-
-                i++;
-
+                }
             }
+
+            const char * result_sdp = 
+            "v=0\n"
+            "o=MyStreamer 2398026505 2307593197 IN IP4 10.20.30.40\n"
+            "s=MyStreamer Audio Session\n"
+            "t=0 0\n"
+            // "m=video 5000 UDP/TLS/RTP/SAVPF 96\n"
+            "m=video 5000 RTP/AVP 96\n"
+            "c=IN IP4 192.168.0.34\n"
+            "a=fingerprint:sha-256 D4:73:0F:27:ED:14:D8:15:23:E5:04:9B:F8:00:A1:D2:7F:A4:6F:C8:75:75:10:E7:72:8C:29:CC:12:F6:A5:2B\n"
+            "a=ice-ufrag:W2TGCZw2NZHuwlnf\n"
+            "a=ice-pwd:xdQEccP40E+P0L5qTyzDgfmW\n"
+            "a=rtcp-mux\n"
+            "a=rtpmap:96 H264/90000\n";
+
+            
+            rapidjson::Document response_doc;
+            response_doc.SetObject();
+            rapidjson::Document::AllocatorType& allocator = response_doc.GetAllocator();
+
+
+            rapidjson::Value sdp(rapidjson::kStringType);
+            sdp.Set(result_sdp);
+
+            response_doc.AddMember("command", "answer", allocator);
+            response_doc.AddMember("sdp", sdp, allocator);
+
+            rapidjson::StringBuffer buffer;
+            buffer.Clear();
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+            response_doc.Accept(writer);
+
+
+            web_socket_server.send(hdl, buffer.GetString(), websocketpp::frame::opcode::value::text);
+
 
         }
         
+
 
         // try {
         //     web_socket_server.send(hdl, msg->get_payload(), msg->get_opcode());

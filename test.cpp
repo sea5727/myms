@@ -40,20 +40,16 @@ static const gchar *sdp = "v=0\r\n"
     "s=TestSessionToCopy\r\n"
     "c=IN IP4 127.0.0.1\r\n"
     "t=0 0\r\n"
-
     "a=sendrecv\r\n"
     "m=video 3434 RTP/AVP 96 97 99\r\n"
     "a=rtpmap:96 MP4V-ES/90000\r\n"
     "a=rtpmap:97 H263-1998/90000\r\n"
     "a=rtpmap:99 H263/90000\r\n"
-
     "a=sendrecv\r\n"
     "m=video 6565 RTP/AVP 98\r\n"
     "a=rtpmap:98 VP8/90000\r\n"
-
     "a=sendrecv\r\n"
     "m=audio 4545 RTP/AVP 14\r\n"
-
     "a=sendrecv\r\n"
     "m=audio 1010 TCP 14\r\n";
 

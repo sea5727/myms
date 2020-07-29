@@ -5,8 +5,11 @@
 #include "WebSocketServer.hpp"
 #include "EventHandler.hpp"
 #include "MessageType.hpp"
-int main(int, char**) {
+
+int main(int argc, char* argv[]) {
     std::cout << "Hello, world!\n";
+
+    gst_init(&argc, &argv);
 
     EventLoop loop;
     TcpGenericServer<TcpInterface> tcp_server(loop.io_service());

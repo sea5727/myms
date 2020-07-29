@@ -9,6 +9,7 @@ enum message_code{
     message_1,
     message_2,
     message_3,
+    offer,
     message_count,
 };
 
@@ -24,6 +25,7 @@ class message_t : public message_base_t
 class message_1_t : public message_t<message_1> {};
 class message_2_t : public message_t<message_2> {};
 class message_3_t : public message_t<message_3> {};
+class offer_t : public message_t<offer> {};
 
 
 typedef void (*base_handler_t)(const message_base_t&);
@@ -56,9 +58,19 @@ public:
     {
         _handler_table_t[index] = handler;
     }
+
 };
 
 handler_table_t EventHandler::_handler_table_t;
+
+class MediaServerEventHandler : public EventHandler
+{
+public:
+    void offer_message_handler(const offer_t & message)
+    {
+
+    }
+};
 
 
 //어딘가에서
